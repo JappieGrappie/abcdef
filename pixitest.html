@@ -1,0 +1,134 @@
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>abcdefghijklmnopqrstuwvxyz</title>
+</head>
+  <script src="pixi/pixi.min.js"></script>
+<body>
+  <script type="text/javascript">
+
+  var app = new PIXI.Application(800,600, {backgroundColor : 0xffffff});
+document.body.appendChild(app.view);
+
+
+var background = new PIXI.Graphics();
+background.lineStyle(1, 0x0, 0.1);
+for (var i =-app.screen.height/2 ;i < app.screen.height/2; i=i+20) {
+  background.moveTo(-app.screen.width/2,i);
+  background.lineTo(app.screen.width /2,i);
+}
+for (var i =-app.screen.width/2;i < app.screen.width/2; i=i+20) {
+  background.moveTo(i,-app.screen.height/2);
+  background.lineTo(i,app.screen.height/2);
+}
+background.x = app.screen.width/2;
+background.y = app.screen.height/2;
+app.stage.addChild(background);
+
+
+var vierkant = new PIXI.Graphics();
+vierkant.beginFill(0xffff33);
+vierkant.lineStyle(4, 0x3333ff, 1);
+
+// draw a shape
+vierkant.moveTo(app.screen.height/20,app.screen.height/20);
+vierkant.lineTo(app.screen.height/20,-app.screen.height/20);
+vierkant.lineTo(-app.screen.height/20,-app.screen.height/20);
+vierkant.lineTo(-app.screen.height/20,app.screen.height/20);
+vierkant.lineTo(app.screen.height/20,app.screen.height/20);
+vierkant.endFill();
+
+
+
+
+vierkant.x = app.screen.width /2;
+vierkant.y = app.screen.height /2;
+
+app.stage.addChild(vierkant);
+
+var x=0;
+var y=0;
+
+var v = 1;
+var angle = 0 / 180 * Math.PI;
+var turnleft = false;
+var turnright = false;
+app.ticker.add(function(delta) {
+    if(turnleft){angle+=0.8/ 180 * Math.PI;}
+    if(turnright){angle-=0.8/ 180 * Math.PI;}
+    vierkant.rotation += 0.01 * delta;
+
+    x=x+v*Math.cos(angle);
+    y=y+v*Math.sin(angle);
+
+    background.x = app.screen.width/2 - x % 20;
+    background.y = app.screen.height/2 + y % 20;
+
+});
+var pijl2 = new PIXI.Graphics();
+pijl2.beginFill(0xffff33);
+pijl2.lineStyle(1, 0x3333ff, 1);
+
+pijl2.moveTo(0,5);
+pijl2.lineTo(20,5);
+pijl2.lineTo(20,15);
+pijl2.lineTo(40,0);
+pijl2.lineTo(20,-15);
+pijl2.lineTo(20,-5);
+pijl2.lineTo(0,-5);
+pijl2.lineTo(0,5)
+pijl2.endFill();
+// Opt-in to interactivity
+pijl2.interactive = true;
+
+// Shows hand cursor
+pijl2.buttonMode = true;
+
+// Pointers normalize touch and mouse
+pijl2.on('pointerdown', function() {turnright=true;});
+pijl2.on('pointerup', function() {turnright=false;});
+pijl2.on('pointerout', function() {turnright=false;});
+// move the pijl to the center of the screen
+pijl2.x = app.screen.width /10;
+pijl2.y = app.screen.height /10;
+app.stage.addChild(pijl2);
+function onClick2 () {
+    angle= angle-10/ 180 * Math.PI;
+}
+
+var pijl = new PIXI.Graphics();
+pijl.beginFill(0xffff33);
+pijl.lineStyle(1, 0x3333ff, 1);
+
+pijl.moveTo(0,-5);
+pijl.lineTo(-20,-5);
+pijl.lineTo(-20,-15);
+pijl.lineTo(-40,0);
+pijl.lineTo(-20,15);
+pijl.lineTo(-20,5);
+pijl.lineTo(0,5);
+pijl.lineTo(0,-5);
+pijl.endFill();
+// Opt-in to interactivity
+pijl.interactive = true;
+
+// Shows hand cursor
+pijl.buttonMode = true;
+
+// Pointers normalize touch and mouse
+pijl.on('pointerdown', function() {turnleft=true;});
+pijl.on('pointerup', function() {turnleft=false;});
+pijl.on('pointerout', function() {turnleft=false;});
+
+// move the pijl to the center of the screen
+pijl.x = app.screen.width /18;
+pijl.y = app.screen.height /10;
+
+app.stage.addChild(pijl);
+function onClick () {
+  angle= angle+10 / 180 * Math.PI;
+}
+  </script>
+</body>
+</html>

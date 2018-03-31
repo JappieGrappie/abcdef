@@ -1,0 +1,245 @@
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>abcdefghijklmnopqrstuwvxyz</title>
+</head>
+  <script src="pixi/pixi.min.js"></script>
+<body>
+  <script type="text/javascript">
+  var size = [1039, 580];
+  var ratio = size[0] / size[1];
+  var app = new PIXI.Application(size[0], size[1], {backgroundColor : 0xffffff});
+  console.log(app);
+document.body.appendChild(app.view);
+
+function keyboard(keyCode) {
+  let key = {};
+  key.code = keyCode;
+  key.isDown = false;
+  key.isUp = true;
+  key.press = undefined;
+  key.release = undefined;
+  //The `downHandler`
+  key.downHandler = function(event) {
+    if (event.keyCode === key.code) {
+      if (key.isUp && key.press) key.press();
+      key.isDown = true;
+      key.isUp = false;
+    }
+    event.preventDefault();
+  };
+
+  //The `upHandler`
+  key.upHandler = function(event) {
+    if (event.keyCode === key.code) {
+      if (key.isDown && key.release) key.release();
+      key.isDown = false;
+      key.isUp = true;
+    }
+    event.preventDefault();
+  };
+
+  //Attach event listeners
+  window.addEventListener(
+    "keydown", key.downHandler.bind(key), false
+  );
+  window.addEventListener(
+    "keyup", key.upHandler.bind(key), false
+  );
+  return key;
+}
+
+let left = keyboard(37),
+    up = keyboard(38),
+    right = keyboard(39),
+    down = keyboard(40);
+    spatie = keyboard(32);
+var background = new PIXI.Graphics();
+background.lineStyle(1, 0x0, 0.1);
+for (var i =-app.screen.height/2-40 ;i < app.screen.height/2; i=i+20) {
+  background.moveTo(-app.screen.width/2,i);
+  background.lineTo(app.screen.width /2,i);
+}
+for (var i =-app.screen.width/2-40;i < app.screen.width/2; i=i+20) {
+  background.moveTo(i,-app.screen.height/2);
+  background.lineTo(i,app.screen.height/2);
+}
+background.x = app.screen.width/2;
+background.y = app.screen.height/2;
+app.stage.addChild(background);
+
+
+var vierkant = new PIXI.Graphics();
+vierkant.beginFill(0xffff33);
+vierkant.lineStyle(4, 0x3333ff, 1);
+
+// draw a shape
+vierkant.moveTo(app.screen.height/20,app.screen.height/20);
+vierkant.lineTo(app.screen.height/20,-app.screen.height/20);
+vierkant.lineTo(-app.screen.height/20,-app.screen.height/20);
+vierkant.lineTo(-app.screen.height/20,app.screen.height/20);
+vierkant.lineTo(app.screen.height/20,app.screen.height/20);
+vierkant.endFill();
+
+vierkant.x = app.screen.width /2;
+vierkant.y = app.screen.height /2;
+app.stage.addChild(vierkant);
+
+var x=0;
+var y=0;
+
+function Bullet(x, y, angle, speed, life, offset, v, Rangle) {
+  this.x = x;
+  this.y = y;
+  this.angle = angle;
+  this.speed = speed;
+  this.life = life;
+  this.x=this.x+offset*Math.cos(this.angle);
+  this.y=this.y+offset*Math.sin(this.angle);
+
+  this.pixi = new PIXI.Graphics();
+  this.pixi.lineStyle(4, 0x3333ff, 1)
+      .moveTo(0, 0)
+      .lineTo(10, 0);
+  this.pixi.rotation=-angle;
+
+  app.stage.addChild(this.pixi);
+  this.pixi.zOrder=1;
+  var vx = this.speed*Math.cos(this.angle)-v*Math.cos(Rangle);
+  var vy = this.speed*Math.sin(this.angle)-v*Math.sin(Rangle);
+  this.nextStep = function(delta) {
+    this.x=this.x+vx;
+    this.y=this.y+vy;
+
+    this.pixi.x = -x+this.x + app.screen.width /2;
+    this.pixi.y = y-this.y + app.screen.height /2;
+
+    if (--this.life == 0) {
+      app.stage.removeChild(this.pixi);
+      return false;
+    }
+    return true;
+  }
+}
+
+var bullets = [];
+
+var v = 3.5;
+var angle = 0 / 180 * Math.PI;
+var turnleft = false;
+var turnright = false;
+
+spatie.press = function() {
+  for(var i=0; i<4;i++) {
+    bullets.push(new Bullet(x, y, -vierkant.rotation + Math.PI/2*i+Math.PI/4, v*2, 60, Math.sqrt(2)*app.screen.height/20, v, angle));
+  }
+}
+app.ticker.add(function(delta) {
+    if(turnleft){angle+=0.8/ 180 * Math.PI;}
+    if(turnright){angle-=0.8/ 180 * Math.PI;}
+
+    vierkant.rotation += 0.01 * delta;
+
+    x=x+v*Math.cos(angle);
+    y=y+v*Math.sin(angle);
+    background.x = app.screen.width/2 - x % 20;
+    background.y = app.screen.height/2 + y % 20;
+
+    var newbullets=[];
+    for (var i=0 ; i < bullets.length ; ++i) {
+      if (bullets[i].nextStep()) {
+        newbullets.push(bullets[i]);
+      }
+    }
+    bullets=newbullets;
+});
+
+var pijl2 = new PIXI.Graphics();
+pijl2.beginFill(0xffff33);
+pijl2.lineStyle(1, 0x3333ff, 1);
+
+pijl2.moveTo(0,5);
+pijl2.lineTo(20,5);
+pijl2.lineTo(20,15);
+pijl2.lineTo(40,0);
+pijl2.lineTo(20,-15);
+pijl2.lineTo(20,-5);
+pijl2.lineTo(0,-5);
+pijl2.lineTo(0,5)
+pijl2.endFill();
+// Opt-in to interactivity
+pijl2.interactive = true;
+
+// Shows hand cursor
+pijl2.buttonMode = true;
+
+// Pointers normalize touch and mouse
+pijl2.on('pointerdown', function() {turnright=true;});
+pijl2.on('pointerup', function() {turnright=false;});
+pijl2.on('pointerout', function() {turnright=false;});
+
+right.press = function() {turnright=true;};
+right.release = function() {turnright=false;};
+
+// move the pijl to the center of the screen
+pijl2.x = app.screen.width /10;
+pijl2.y = app.screen.height /10;
+app.stage.addChild(pijl2);
+function onClick2 () {
+    angle= angle-10/ 180 * Math.PI;
+}
+
+var pijl = new PIXI.Graphics();
+pijl.beginFill(0xffff33);
+pijl.lineStyle(1, 0x3333ff, 1);
+
+pijl.moveTo(0,-5);
+pijl.lineTo(-20,-5);
+pijl.lineTo(-20,-15);
+pijl.lineTo(-40,0);
+pijl.lineTo(-20,15);
+pijl.lineTo(-20,5);
+pijl.lineTo(0,5);
+pijl.lineTo     (0,-5);
+pijl.endFill();
+// Opt-in to interactivity
+pijl.interactive = true;
+
+// Shows hand cursor
+pijl.buttonMode = true;
+
+// Pointers normalize touch and mouse
+pijl.on('pointerdown', function() {turnleft=true;});
+pijl.on('pointerup', function() {turnleft=false;});
+pijl.on('pointerout', function() {turnleft=false;});
+left.press = function() { turnleft=true;};
+left.release = function() {turnleft=false;};
+
+// move the pijl to the center of the screen
+pijl.x = app.screen.width /18;
+pijl.y = app.screen.height /10;
+
+app.stage.addChild(pijl);
+function onClick () {
+  angle= angle+30 / 180 * Math.PI;
+}
+
+function resize() {
+    if (window.innerWidth / window.innerHeight <= ratio) {
+        var w = window.innerHeight * ratio;
+        var h = window.innerHeight;
+    } else {
+        var w = window.innerWidth;
+        var h = window.innerWidth / ratio;
+    }
+    app.renderer.view.style.width = w + 'px';
+    app.renderer.view.style.height = h + 'px';
+}
+window.onresize = resize;
+resize();
+up.press = function() {v=3.5;};
+up.release = function() {v=1.75;};
+  </script>
+</body>
+</html>
